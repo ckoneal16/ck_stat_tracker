@@ -13,7 +13,7 @@ Env vars:
   SHEET_ID                     id from the Google Sheet URL
   LEAGUES        optional comma list (default below)
   LOOKBACK_DAYS  optional, days of scoreboards to scan (default 3)
-  KEEP_DAYS      optional, days of Stats rows to keep (default 7); Games/Golf keep 45
+  KEEP_DAYS      optional, days of Stats rows to keep (default 3); Games/Golf keep 14
   DRY_RUN        set to anything to skip the Sheet and just print
 """
 import os, sys, json, time, datetime as dt
@@ -173,7 +173,7 @@ def write_tab(sh, title, cols, new_rows, key_idx, keep_after):
 def main():
     wanted = [x.strip() for x in os.environ.get("LEAGUES", DEFAULT).split(",") if x.strip()]
     lookback = int(os.environ.get("LOOKBACK_DAYS", 3))
-    keep = int(os.environ.get("KEEP_DAYS", 7))
+    keep = int(os.environ.get("KEEP_DAYS", 3))
     today = dt.datetime.utcnow().date()
     games, stats, golf, errors = [], [], [], []
     for lg in wanted:
@@ -208,10 +208,10 @@ def main():
         return
     sh = open_sheet()
     cut = lambda d: (today - dt.timedelta(days=d)).isoformat()
-    print("Games:", write_tab(sh, "Games", GAME_COLS, games, 2, cut(45)))
+    print("Games:", write_tab(sh, "Games", GAME_COLS, games, 2, cut(14)))
     print("Stats:", write_tab(sh, "Stats", STAT_COLS, stats, 2, cut(keep)))
     if golf or "pga" in wanted:
-        print("Golf:", write_tab(sh, "Golf", GOLF_COLS, golf, 2, cut(45)))
+        print("Golf:", write_tab(sh, "Golf", GOLF_COLS, golf, 2, cut(14)))
     try:
         hb = sh.worksheet("Status")
     except Exception:
